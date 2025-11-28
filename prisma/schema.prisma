@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum MonitorMode {
+  WATCH_ONLY
+  RECORD
+}
+
+model Monitor {
+  id            Int            @id @default(autoincrement())
+  name          String
+  url           String?
+  mode          MonitorMode    @default(WATCH_ONLY)
+  monitorId     String         @unique()
+  createdAt     DateTime       @default(now())
+  eventMonitors EventMonitor[]
+}
+
+model EventMonitor {
+  id        Int      @id @default(autoincrement())
+  videoUrl  String?
+  monitor   Monitor  @relation(fields: [monitorId], references: [id])
+  monitorId Int
+  event     Event?   @relation(fields: [eventId], references: [id])
+  eventId   Int?
+  createdAt DateTime @default(now())
+}
+
+enum EventStatus {
+  RECORDING
+  FINISHED
+}
+
+model Event {
+  id        Int            @id @default(autoincrement())
+  name      String
+  status    EventStatus    @default(RECORDING)
+  monitors  EventMonitor[]
+  createdAt DateTime       @default(now())
+}
