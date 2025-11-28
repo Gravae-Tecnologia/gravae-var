@@ -4,19 +4,22 @@ import { stopEvent } from '@/services/stop-event'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { StopEventDialog } from '../_components/stop-event-dialog'
 import { useState } from 'react'
-import { VarPlayer } from '@/components/VideoPlayer'
+import { VideoPlayer } from '@/components/VideoPlayer'
 
 export const Route = createFileRoute('/_app/event/$eventId')({
   component: RouteComponent,
   loader: async ({ params: { eventId } }) =>
     await findEvent({
-      eventId: Number(eventId),
+      data: {
+        eventId: Number(eventId),
+      },
     }),
 })
 
 function RouteComponent() {
   const router = useRouter()
   const event = Route.useLoaderData()
+
   const [isStopEvent, setIsStopEvent] = useState(false)
 
   const handleStopEvent = async () => {
@@ -52,7 +55,7 @@ function RouteComponent() {
       <div className="grid grid-cols-2 gap-4 mt-4 max-md:grid-cols-1">
         {event?.monitors.map((monitor) => (
           <div className="aspect-video" key={monitor.id}>
-            <VarPlayer src={monitor.videoUrl || monitor.monitor.url || ''} />
+            <VideoPlayer src={monitor.videoUrl || monitor.monitor.url || ''} />
           </div>
         ))}
       </div>

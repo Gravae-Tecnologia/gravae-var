@@ -39,7 +39,7 @@ function formatTime(seconds: number) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
-export function VarPlayer({ src }: VarPlayerProps) {
+export function VideoPlayer({ src }: VarPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [playbackRate, setPlaybackRate] = useState(1)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -52,25 +52,57 @@ export function VarPlayer({ src }: VarPlayerProps) {
     const video = videoRef.current
     if (!video || !src) return
 
-    const isHlsSource = src.endsWith('.m3u8') || src.includes('.m3u8')
+    // reset básico quando o src muda
+    setPlaybackRate(1)
+    setIsPlaying(false)
+    setDuration(0)
+    setCurrentTime(0)
+
+    const isHlsSource = /\.m3u8(\?|$)/i.test(src)
     setIsHls(isHlsSource)
 
     if (isHlsSource && Hls.isSupported()) {
-      const hls = new Hls()
-      hls.loadSource(src)
-      hls.attachMedia(video)
+      const hls = new Hls({
+        manifestLoadingMaxRetry: 10,
+        manifestLoadingRetryDelay: 2000,
+        fragLoadingMaxRetry: 6,
+        fragLoadingRetryDelay: 2000,
+      })
 
-      // tenta dar autoplay quando o manifest estiver pronto
+      hls.attachMedia(video)
+      hls.loadSource(src)
+
+      // autoplay quando manifest estiver pronto
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.muted = true // ajuda o autoplay
         video
           .play()
-          .then(() => {
-            // se der tudo certo, marca como playing
-            setIsPlaying(true)
-          })
+          .then(() => setIsPlaying(true))
           .catch((err) => {
             console.warn('Autoplay HLS bloqueado:', err)
           })
+      })
+
+      // tentar se recuperar de erros fatais
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if (!data.fatal) return
+
+        console.warn('[HLS fatal error]', data)
+
+        switch (data.type) {
+          case Hls.ErrorTypes.NETWORK_ERROR:
+            console.warn('Tentando recuperar NETWORK_ERROR...')
+            hls.startLoad() // recomeça o load
+            break
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            console.warn('Tentando recuperar MEDIA_ERROR...')
+            hls.recoverMediaError()
+            break
+          default:
+            console.warn('Erro irreversível, destruindo HLS...')
+            hls.destroy()
+            break
+        }
       })
 
       return () => {
@@ -79,7 +111,8 @@ export function VarPlayer({ src }: VarPlayerProps) {
     } else {
       // Safari HLS nativo ou MP4 normal
       video.src = src
-      // se quiser, pode tentar autoplay pra MP4 também:
+      // se quiser autoplay pra MP4:
+      // video.muted = true
       // video.play().catch(() => {})
     }
   }, [src])
@@ -173,15 +206,13 @@ export function VarPlayer({ src }: VarPlayerProps) {
   const showControls = !isHls // só mostra barra + botões quando NÃO for HLS
 
   return (
-    <div className="w-full max-w-[900px] mx-auto">
+    <div className="w-full mx-auto">
       <div className="relative bg-black">
         <video
+          key={src} // se o src mudar, força remount do <video>
           ref={videoRef}
-          controls={isHls} // opcional: pode deixar true pra HLS ter os controles nativos
-          className={cn(
-            'w-full block',
-            !isHls && 'cursor-pointer', // cursor só clicável no modo VAR
-          )}
+          controls={isHls} // HLS usa os controles nativos
+          className={cn('w-full block', !isHls && 'cursor-pointer')}
           onClick={handleVideoClick}
         />
       </div>

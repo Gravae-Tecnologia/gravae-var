@@ -2,6 +2,7 @@ import { Multiselect } from '@/components/Multiselect'
 import { Button } from '@/components/ui/button'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { VideoPlayer } from '@/components/VideoPlayer'
 import { env } from '@/constants/env'
 import { prisma } from '@/db'
 import { cn } from '@/lib/utils'
@@ -151,12 +152,12 @@ function App() {
             key={camera.value}
             className="flex-1 aspect-video bg-gray-900 duration-300 transition-all ease-in-out"
           >
-            <video
+            <VideoPlayer
               src={
                 monitors.find((monitor) => monitor.id === camera.value)?.url ||
                 ''
               }
-            ></video>
+            />
           </div>
         ))}
       </div>
