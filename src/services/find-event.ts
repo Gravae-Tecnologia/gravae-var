@@ -50,52 +50,56 @@ const findEventServer = createServerFn({
       }
     })
 
-    // Monitors sem videoUrl gravado ainda
-    const monitorsWithoutVideo = event.monitors.filter((em) => !em.videoUrl)
+    if (event.status === 'FINISHED') {
+      // Monitors sem videoUrl gravado ainda
+      const monitorsWithoutVideo = event.monitors.filter((em) => !em.videoUrl)
 
-    if (monitorsWithoutVideo.length > 0) {
-      // busca vídeos no Shinobi
-      const responseEventVideos = await Promise.all(
-        monitorsWithoutVideo.map((em) =>
-          getVideos({
-            apiKey: user[0].auth,
-            apiUrl: env.SHINOBI_URL,
-            cameraId: em.monitor.monitorId,
-            groupKey: env.SHINOBI_GROUP_KEY,
-            start: em.createdAt,
+      if (monitorsWithoutVideo.length > 0) {
+        // busca vídeos no Shinobi
+        const responseEventVideos = await Promise.all(
+          monitorsWithoutVideo.map((em) =>
+            getVideos({
+              apiKey: user[0].auth,
+              apiUrl: env.SHINOBI_URL,
+              cameraId: em.monitor.monitorId,
+              groupKey: env.SHINOBI_GROUP_KEY,
+              start: em.createdAt,
+            }),
+          ),
+        )
+
+        const eventVideos = responseEventVideos
+          .flatMap((res) => res?.videos ?? [])
+          .filter((v) => v.status === 1)
+
+        // atualiza eventMonitor.videoUrl
+        await Promise.all(
+          monitorsWithoutVideo.map((em) => {
+            const video = eventVideos.find(
+              (v) => v.mid === em.monitor.monitorId,
+            )
+            const videoUrl = video ? `${env.SHINOBI_URL}${video.href}` : null
+
+            console.log('[findEvent] linkando vídeo:', {
+              emId: em.id,
+              monitorId: em.monitor.monitorId,
+              videoUrl,
+            })
+
+            return prisma.eventMonitor.update({
+              where: { id: em.id },
+              data: { videoUrl },
+            })
           }),
-        ),
-      )
+        )
 
-      const eventVideos = responseEventVideos
-        .flatMap((res) => res?.videos ?? [])
-        .filter((v) => v.status === 1)
-
-      // atualiza eventMonitor.videoUrl
-      await Promise.all(
-        monitorsWithoutVideo.map((em) => {
-          const video = eventVideos.find((v) => v.mid === em.monitor.monitorId)
-          const videoUrl = video ? `${env.SHINOBI_URL}${video.href}` : null
-
-          console.log('[findEvent] linkando vídeo:', {
-            emId: em.id,
-            monitorId: em.monitor.monitorId,
-            videoUrl,
-          })
-
-          return prisma.eventMonitor.update({
-            where: { id: em.id },
-            data: { videoUrl },
-          })
-        }),
-      )
-
-      // marca vídeos como lidos
-      await Promise.all(
-        eventVideos.map((video) =>
-          axios.get(`${env.SHINOBI_URL}${video.links.changeToRead}`),
-        ),
-      )
+        // marca vídeos como lidos
+        await Promise.all(
+          eventVideos.map((video) =>
+            axios.get(`${env.SHINOBI_URL}${video.links.changeToRead}`),
+          ),
+        )
+      }
     }
 
     return event

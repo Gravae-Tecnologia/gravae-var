@@ -54,7 +54,10 @@ function RouteComponent() {
 
       <div className="grid grid-cols-2 gap-4 mt-4 max-md:grid-cols-1">
         {event?.monitors.map((monitor) => (
-          <div className="aspect-video" key={monitor.id}>
+          <div className="aspect-video relative" key={monitor.id}>
+            <span className="absolute z-99 bg-green-400 p-2 rounded-full right-2 top-2">
+              {monitor.monitor.name}
+            </span>
             <VideoPlayer src={monitor.videoUrl || monitor.monitor.url || ''} />
           </div>
         ))}
