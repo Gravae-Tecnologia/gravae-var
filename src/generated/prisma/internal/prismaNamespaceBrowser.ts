@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Monitor: 'Monitor',
+  Video: 'Video',
   EventMonitor: 'EventMonitor',
   Event: 'Event'
 } as const
@@ -81,9 +82,20 @@ export const MonitorScalarFieldEnum = {
 export type MonitorScalarFieldEnum = (typeof MonitorScalarFieldEnum)[keyof typeof MonitorScalarFieldEnum]
 
 
+export const VideoScalarFieldEnum = {
+  id: 'id',
+  filename: 'filename',
+  url: 'url',
+  startAt: 'startAt',
+  createdAt: 'createdAt',
+  eventMonitorId: 'eventMonitorId'
+} as const
+
+export type VideoScalarFieldEnum = (typeof VideoScalarFieldEnum)[keyof typeof VideoScalarFieldEnum]
+
+
 export const EventMonitorScalarFieldEnum = {
   id: 'id',
-  videoUrl: 'videoUrl',
   monitorId: 'monitorId',
   eventId: 'eventId',
   createdAt: 'createdAt'

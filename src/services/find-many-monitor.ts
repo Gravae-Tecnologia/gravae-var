@@ -36,8 +36,6 @@ export const findManyMonitor = createServerFn({
 
   // 4) Enriquecer monitores do banco com a URL HLS do Shinobi
   shinobiMonitors?.monitors.forEach((monitor) => {
-    console.log('[findManyMonitor] shinobi monitor:', monitor)
-
     monitors.forEach((m) => {
       if (m.monitorId === monitor.mid && monitor.streams?.[0]) {
         m.url = `${env.SHINOBI_URL}${monitor.streams[0]}`

@@ -42,8 +42,6 @@ export const findManyEvent = createServerFn({
 
   // 4) Enriquecer eventos com URL HLS do Shinobi
   shinobiMonitors?.monitors.forEach((monitor) => {
-    console.log('[findManyEvent] shinobi monitor:', monitor)
-
     events.forEach((event) => {
       event.monitors.forEach(({ monitor: m }) => {
         if (m.monitorId === monitor.mid && monitor.streams?.[0]) {

@@ -22,9 +22,19 @@ model Monitor {
   eventMonitors EventMonitor[]
 }
 
+model Video {
+  id             Int           @id @default(autoincrement())
+  filename       String
+  url            String
+  startAt        DateTime      @default(now())
+  createdAt      DateTime      @default(now())
+  eventMonitor   EventMonitor? @relation(fields: [eventMonitorId], references: [id])
+  eventMonitorId Int?
+}
+
 model EventMonitor {
   id        Int      @id @default(autoincrement())
-  videoUrl  String?
+  videos    Video[]
   monitor   Monitor  @relation(fields: [monitorId], references: [id])
   monitorId Int
   event     Event?   @relation(fields: [eventId], references: [id])

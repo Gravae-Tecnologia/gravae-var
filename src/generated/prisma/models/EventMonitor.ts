@@ -40,7 +40,6 @@ export type EventMonitorSumAggregateOutputType = {
 
 export type EventMonitorMinAggregateOutputType = {
   id: number | null
-  videoUrl: string | null
   monitorId: number | null
   eventId: number | null
   createdAt: Date | null
@@ -48,7 +47,6 @@ export type EventMonitorMinAggregateOutputType = {
 
 export type EventMonitorMaxAggregateOutputType = {
   id: number | null
-  videoUrl: string | null
   monitorId: number | null
   eventId: number | null
   createdAt: Date | null
@@ -56,7 +54,6 @@ export type EventMonitorMaxAggregateOutputType = {
 
 export type EventMonitorCountAggregateOutputType = {
   id: number
-  videoUrl: number
   monitorId: number
   eventId: number
   createdAt: number
@@ -78,7 +75,6 @@ export type EventMonitorSumAggregateInputType = {
 
 export type EventMonitorMinAggregateInputType = {
   id?: true
-  videoUrl?: true
   monitorId?: true
   eventId?: true
   createdAt?: true
@@ -86,7 +82,6 @@ export type EventMonitorMinAggregateInputType = {
 
 export type EventMonitorMaxAggregateInputType = {
   id?: true
-  videoUrl?: true
   monitorId?: true
   eventId?: true
   createdAt?: true
@@ -94,7 +89,6 @@ export type EventMonitorMaxAggregateInputType = {
 
 export type EventMonitorCountAggregateInputType = {
   id?: true
-  videoUrl?: true
   monitorId?: true
   eventId?: true
   createdAt?: true
@@ -189,7 +183,6 @@ export type EventMonitorGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 
 export type EventMonitorGroupByOutputType = {
   id: number
-  videoUrl: string | null
   monitorId: number
   eventId: number | null
   createdAt: Date
@@ -220,20 +213,20 @@ export type EventMonitorWhereInput = {
   OR?: Prisma.EventMonitorWhereInput[]
   NOT?: Prisma.EventMonitorWhereInput | Prisma.EventMonitorWhereInput[]
   id?: Prisma.IntFilter<"EventMonitor"> | number
-  videoUrl?: Prisma.StringNullableFilter<"EventMonitor"> | string | null
   monitorId?: Prisma.IntFilter<"EventMonitor"> | number
   eventId?: Prisma.IntNullableFilter<"EventMonitor"> | number | null
   createdAt?: Prisma.DateTimeFilter<"EventMonitor"> | Date | string
+  videos?: Prisma.VideoListRelationFilter
   monitor?: Prisma.XOR<Prisma.MonitorScalarRelationFilter, Prisma.MonitorWhereInput>
   event?: Prisma.XOR<Prisma.EventNullableScalarRelationFilter, Prisma.EventWhereInput> | null
 }
 
 export type EventMonitorOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  videoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   monitorId?: Prisma.SortOrder
   eventId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  videos?: Prisma.VideoOrderByRelationAggregateInput
   monitor?: Prisma.MonitorOrderByWithRelationInput
   event?: Prisma.EventOrderByWithRelationInput
 }
@@ -243,17 +236,16 @@ export type EventMonitorWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.EventMonitorWhereInput | Prisma.EventMonitorWhereInput[]
   OR?: Prisma.EventMonitorWhereInput[]
   NOT?: Prisma.EventMonitorWhereInput | Prisma.EventMonitorWhereInput[]
-  videoUrl?: Prisma.StringNullableFilter<"EventMonitor"> | string | null
   monitorId?: Prisma.IntFilter<"EventMonitor"> | number
   eventId?: Prisma.IntNullableFilter<"EventMonitor"> | number | null
   createdAt?: Prisma.DateTimeFilter<"EventMonitor"> | Date | string
+  videos?: Prisma.VideoListRelationFilter
   monitor?: Prisma.XOR<Prisma.MonitorScalarRelationFilter, Prisma.MonitorWhereInput>
   event?: Prisma.XOR<Prisma.EventNullableScalarRelationFilter, Prisma.EventWhereInput> | null
 }, "id">
 
 export type EventMonitorOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  videoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   monitorId?: Prisma.SortOrder
   eventId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -269,58 +261,54 @@ export type EventMonitorScalarWhereWithAggregatesInput = {
   OR?: Prisma.EventMonitorScalarWhereWithAggregatesInput[]
   NOT?: Prisma.EventMonitorScalarWhereWithAggregatesInput | Prisma.EventMonitorScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"EventMonitor"> | number
-  videoUrl?: Prisma.StringNullableWithAggregatesFilter<"EventMonitor"> | string | null
   monitorId?: Prisma.IntWithAggregatesFilter<"EventMonitor"> | number
   eventId?: Prisma.IntNullableWithAggregatesFilter<"EventMonitor"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"EventMonitor"> | Date | string
 }
 
 export type EventMonitorCreateInput = {
-  videoUrl?: string | null
   createdAt?: Date | string
+  videos?: Prisma.VideoCreateNestedManyWithoutEventMonitorInput
   monitor: Prisma.MonitorCreateNestedOneWithoutEventMonitorsInput
   event?: Prisma.EventCreateNestedOneWithoutMonitorsInput
 }
 
 export type EventMonitorUncheckedCreateInput = {
   id?: number
-  videoUrl?: string | null
   monitorId: number
   eventId?: number | null
   createdAt?: Date | string
+  videos?: Prisma.VideoUncheckedCreateNestedManyWithoutEventMonitorInput
 }
 
 export type EventMonitorUpdateInput = {
-  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  videos?: Prisma.VideoUpdateManyWithoutEventMonitorNestedInput
   monitor?: Prisma.MonitorUpdateOneRequiredWithoutEventMonitorsNestedInput
   event?: Prisma.EventUpdateOneWithoutMonitorsNestedInput
 }
 
 export type EventMonitorUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   monitorId?: Prisma.IntFieldUpdateOperationsInput | number
   eventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  videos?: Prisma.VideoUncheckedUpdateManyWithoutEventMonitorNestedInput
 }
 
 export type EventMonitorCreateManyInput = {
   id?: number
-  videoUrl?: string | null
   monitorId: number
   eventId?: number | null
   createdAt?: Date | string
 }
 
 export type EventMonitorUpdateManyMutationInput = {
-  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type EventMonitorUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   monitorId?: Prisma.IntFieldUpdateOperationsInput | number
   eventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -336,9 +324,13 @@ export type EventMonitorOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type EventMonitorNullableScalarRelationFilter = {
+  is?: Prisma.EventMonitorWhereInput | null
+  isNot?: Prisma.EventMonitorWhereInput | null
+}
+
 export type EventMonitorCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  videoUrl?: Prisma.SortOrder
   monitorId?: Prisma.SortOrder
   eventId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -352,7 +344,6 @@ export type EventMonitorAvgOrderByAggregateInput = {
 
 export type EventMonitorMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  videoUrl?: Prisma.SortOrder
   monitorId?: Prisma.SortOrder
   eventId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -360,7 +351,6 @@ export type EventMonitorMaxOrderByAggregateInput = {
 
 export type EventMonitorMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  videoUrl?: Prisma.SortOrder
   monitorId?: Prisma.SortOrder
   eventId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -414,12 +404,20 @@ export type EventMonitorUncheckedUpdateManyWithoutMonitorNestedInput = {
   deleteMany?: Prisma.EventMonitorScalarWhereInput | Prisma.EventMonitorScalarWhereInput[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
+export type EventMonitorCreateNestedOneWithoutVideosInput = {
+  create?: Prisma.XOR<Prisma.EventMonitorCreateWithoutVideosInput, Prisma.EventMonitorUncheckedCreateWithoutVideosInput>
+  connectOrCreate?: Prisma.EventMonitorCreateOrConnectWithoutVideosInput
+  connect?: Prisma.EventMonitorWhereUniqueInput
+}
+
+export type EventMonitorUpdateOneWithoutVideosNestedInput = {
+  create?: Prisma.XOR<Prisma.EventMonitorCreateWithoutVideosInput, Prisma.EventMonitorUncheckedCreateWithoutVideosInput>
+  connectOrCreate?: Prisma.EventMonitorCreateOrConnectWithoutVideosInput
+  upsert?: Prisma.EventMonitorUpsertWithoutVideosInput
+  disconnect?: Prisma.EventMonitorWhereInput | boolean
+  delete?: Prisma.EventMonitorWhereInput | boolean
+  connect?: Prisma.EventMonitorWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EventMonitorUpdateToOneWithWhereWithoutVideosInput, Prisma.EventMonitorUpdateWithoutVideosInput>, Prisma.EventMonitorUncheckedUpdateWithoutVideosInput>
 }
 
 export type EventMonitorCreateNestedManyWithoutEventInput = {
@@ -465,16 +463,16 @@ export type EventMonitorUncheckedUpdateManyWithoutEventNestedInput = {
 }
 
 export type EventMonitorCreateWithoutMonitorInput = {
-  videoUrl?: string | null
   createdAt?: Date | string
+  videos?: Prisma.VideoCreateNestedManyWithoutEventMonitorInput
   event?: Prisma.EventCreateNestedOneWithoutMonitorsInput
 }
 
 export type EventMonitorUncheckedCreateWithoutMonitorInput = {
   id?: number
-  videoUrl?: string | null
   eventId?: number | null
   createdAt?: Date | string
+  videos?: Prisma.VideoUncheckedCreateNestedManyWithoutEventMonitorInput
 }
 
 export type EventMonitorCreateOrConnectWithoutMonitorInput = {
@@ -507,23 +505,64 @@ export type EventMonitorScalarWhereInput = {
   OR?: Prisma.EventMonitorScalarWhereInput[]
   NOT?: Prisma.EventMonitorScalarWhereInput | Prisma.EventMonitorScalarWhereInput[]
   id?: Prisma.IntFilter<"EventMonitor"> | number
-  videoUrl?: Prisma.StringNullableFilter<"EventMonitor"> | string | null
   monitorId?: Prisma.IntFilter<"EventMonitor"> | number
   eventId?: Prisma.IntNullableFilter<"EventMonitor"> | number | null
   createdAt?: Prisma.DateTimeFilter<"EventMonitor"> | Date | string
 }
 
-export type EventMonitorCreateWithoutEventInput = {
-  videoUrl?: string | null
+export type EventMonitorCreateWithoutVideosInput = {
   createdAt?: Date | string
+  monitor: Prisma.MonitorCreateNestedOneWithoutEventMonitorsInput
+  event?: Prisma.EventCreateNestedOneWithoutMonitorsInput
+}
+
+export type EventMonitorUncheckedCreateWithoutVideosInput = {
+  id?: number
+  monitorId: number
+  eventId?: number | null
+  createdAt?: Date | string
+}
+
+export type EventMonitorCreateOrConnectWithoutVideosInput = {
+  where: Prisma.EventMonitorWhereUniqueInput
+  create: Prisma.XOR<Prisma.EventMonitorCreateWithoutVideosInput, Prisma.EventMonitorUncheckedCreateWithoutVideosInput>
+}
+
+export type EventMonitorUpsertWithoutVideosInput = {
+  update: Prisma.XOR<Prisma.EventMonitorUpdateWithoutVideosInput, Prisma.EventMonitorUncheckedUpdateWithoutVideosInput>
+  create: Prisma.XOR<Prisma.EventMonitorCreateWithoutVideosInput, Prisma.EventMonitorUncheckedCreateWithoutVideosInput>
+  where?: Prisma.EventMonitorWhereInput
+}
+
+export type EventMonitorUpdateToOneWithWhereWithoutVideosInput = {
+  where?: Prisma.EventMonitorWhereInput
+  data: Prisma.XOR<Prisma.EventMonitorUpdateWithoutVideosInput, Prisma.EventMonitorUncheckedUpdateWithoutVideosInput>
+}
+
+export type EventMonitorUpdateWithoutVideosInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  monitor?: Prisma.MonitorUpdateOneRequiredWithoutEventMonitorsNestedInput
+  event?: Prisma.EventUpdateOneWithoutMonitorsNestedInput
+}
+
+export type EventMonitorUncheckedUpdateWithoutVideosInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  monitorId?: Prisma.IntFieldUpdateOperationsInput | number
+  eventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type EventMonitorCreateWithoutEventInput = {
+  createdAt?: Date | string
+  videos?: Prisma.VideoCreateNestedManyWithoutEventMonitorInput
   monitor: Prisma.MonitorCreateNestedOneWithoutEventMonitorsInput
 }
 
 export type EventMonitorUncheckedCreateWithoutEventInput = {
   id?: number
-  videoUrl?: string | null
   monitorId: number
   createdAt?: Date | string
+  videos?: Prisma.VideoUncheckedCreateNestedManyWithoutEventMonitorInput
 }
 
 export type EventMonitorCreateOrConnectWithoutEventInput = {
@@ -553,73 +592,98 @@ export type EventMonitorUpdateManyWithWhereWithoutEventInput = {
 
 export type EventMonitorCreateManyMonitorInput = {
   id?: number
-  videoUrl?: string | null
   eventId?: number | null
   createdAt?: Date | string
 }
 
 export type EventMonitorUpdateWithoutMonitorInput = {
-  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  videos?: Prisma.VideoUpdateManyWithoutEventMonitorNestedInput
   event?: Prisma.EventUpdateOneWithoutMonitorsNestedInput
 }
 
 export type EventMonitorUncheckedUpdateWithoutMonitorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  videos?: Prisma.VideoUncheckedUpdateManyWithoutEventMonitorNestedInput
 }
 
 export type EventMonitorUncheckedUpdateManyWithoutMonitorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type EventMonitorCreateManyEventInput = {
   id?: number
-  videoUrl?: string | null
   monitorId: number
   createdAt?: Date | string
 }
 
 export type EventMonitorUpdateWithoutEventInput = {
-  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  videos?: Prisma.VideoUpdateManyWithoutEventMonitorNestedInput
   monitor?: Prisma.MonitorUpdateOneRequiredWithoutEventMonitorsNestedInput
 }
 
 export type EventMonitorUncheckedUpdateWithoutEventInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   monitorId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  videos?: Prisma.VideoUncheckedUpdateManyWithoutEventMonitorNestedInput
 }
 
 export type EventMonitorUncheckedUpdateManyWithoutEventInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   monitorId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
+/**
+ * Count Type EventMonitorCountOutputType
+ */
+
+export type EventMonitorCountOutputType = {
+  videos: number
+}
+
+export type EventMonitorCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  videos?: boolean | EventMonitorCountOutputTypeCountVideosArgs
+}
+
+/**
+ * EventMonitorCountOutputType without action
+ */
+export type EventMonitorCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EventMonitorCountOutputType
+   */
+  select?: Prisma.EventMonitorCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * EventMonitorCountOutputType without action
+ */
+export type EventMonitorCountOutputTypeCountVideosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.VideoWhereInput
+}
+
 
 export type EventMonitorSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  videoUrl?: boolean
   monitorId?: boolean
   eventId?: boolean
   createdAt?: boolean
+  videos?: boolean | Prisma.EventMonitor$videosArgs<ExtArgs>
   monitor?: boolean | Prisma.MonitorDefaultArgs<ExtArgs>
   event?: boolean | Prisma.EventMonitor$eventArgs<ExtArgs>
+  _count?: boolean | Prisma.EventMonitorCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["eventMonitor"]>
 
 export type EventMonitorSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  videoUrl?: boolean
   monitorId?: boolean
   eventId?: boolean
   createdAt?: boolean
@@ -629,7 +693,6 @@ export type EventMonitorSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
 
 export type EventMonitorSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  videoUrl?: boolean
   monitorId?: boolean
   eventId?: boolean
   createdAt?: boolean
@@ -639,16 +702,17 @@ export type EventMonitorSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
 
 export type EventMonitorSelectScalar = {
   id?: boolean
-  videoUrl?: boolean
   monitorId?: boolean
   eventId?: boolean
   createdAt?: boolean
 }
 
-export type EventMonitorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "videoUrl" | "monitorId" | "eventId" | "createdAt", ExtArgs["result"]["eventMonitor"]>
+export type EventMonitorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "monitorId" | "eventId" | "createdAt", ExtArgs["result"]["eventMonitor"]>
 export type EventMonitorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  videos?: boolean | Prisma.EventMonitor$videosArgs<ExtArgs>
   monitor?: boolean | Prisma.MonitorDefaultArgs<ExtArgs>
   event?: boolean | Prisma.EventMonitor$eventArgs<ExtArgs>
+  _count?: boolean | Prisma.EventMonitorCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type EventMonitorIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   monitor?: boolean | Prisma.MonitorDefaultArgs<ExtArgs>
@@ -662,12 +726,12 @@ export type EventMonitorIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types
 export type $EventMonitorPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "EventMonitor"
   objects: {
+    videos: Prisma.$VideoPayload<ExtArgs>[]
     monitor: Prisma.$MonitorPayload<ExtArgs>
     event: Prisma.$EventPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    videoUrl: string | null
     monitorId: number
     eventId: number | null
     createdAt: Date
@@ -1065,6 +1129,7 @@ readonly fields: EventMonitorFieldRefs;
  */
 export interface Prisma__EventMonitorClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  videos<T extends Prisma.EventMonitor$videosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EventMonitor$videosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VideoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   monitor<T extends Prisma.MonitorDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MonitorDefaultArgs<ExtArgs>>): Prisma.Prisma__MonitorClient<runtime.Types.Result.GetResult<Prisma.$MonitorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   event<T extends Prisma.EventMonitor$eventArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EventMonitor$eventArgs<ExtArgs>>): Prisma.Prisma__EventClient<runtime.Types.Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
@@ -1097,7 +1162,6 @@ export interface Prisma__EventMonitorClient<T, Null = never, ExtArgs extends run
  */
 export interface EventMonitorFieldRefs {
   readonly id: Prisma.FieldRef<"EventMonitor", 'Int'>
-  readonly videoUrl: Prisma.FieldRef<"EventMonitor", 'String'>
   readonly monitorId: Prisma.FieldRef<"EventMonitor", 'Int'>
   readonly eventId: Prisma.FieldRef<"EventMonitor", 'Int'>
   readonly createdAt: Prisma.FieldRef<"EventMonitor", 'DateTime'>
@@ -1492,6 +1556,30 @@ export type EventMonitorDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Limit how many EventMonitors to delete.
    */
   limit?: number
+}
+
+/**
+ * EventMonitor.videos
+ */
+export type EventMonitor$videosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Video
+   */
+  select?: Prisma.VideoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Video
+   */
+  omit?: Prisma.VideoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.VideoInclude<ExtArgs> | null
+  where?: Prisma.VideoWhereInput
+  orderBy?: Prisma.VideoOrderByWithRelationInput | Prisma.VideoOrderByWithRelationInput[]
+  cursor?: Prisma.VideoWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.VideoScalarFieldEnum | Prisma.VideoScalarFieldEnum[]
 }
 
 /**

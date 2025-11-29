@@ -93,20 +93,27 @@ export const stopEvent = createServerFn({
     // 6) Atualiza cada EventMonitor com a URL correta do vídeo
     await Promise.all(
       event.monitors.map((em) => {
-        const video = eventVideos.find((v) => v.mid === em.monitor.monitorId)
-
-        // Se não achou vídeo, mantém null
-        const videoUrl = video ? `${env.SHINOBI_URL}${video.href}` : null
+        const videos = eventVideos.filter((v) => v.mid === em.monitor.monitorId)
 
         console.log('[stopEvent] Linkando vídeo ao eventMonitor:', {
           eventMonitorId: em.id,
           monitorId: em.monitor.monitorId,
-          videoUrl,
+          videos,
         })
 
         return prisma.eventMonitor.update({
           where: { id: em.id },
-          data: { videoUrl },
+          data: {
+            videos: {
+              createMany: {
+                data: videos.map((video) => ({
+                  filename: video.filename,
+                  url: `${env.SHINOBI_URL}${video.href}`,
+                  startAt: video.time,
+                })),
+              },
+            },
+          },
         })
       }),
     )

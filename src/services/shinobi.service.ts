@@ -305,11 +305,9 @@ async function setMonitorMode({
   cameraId,
   mode,
 }: SetMonitorModeProps): Promise<void> {
-  const recordStart = `${apiUrl}/${apiKey}/monitor/${groupKey}/${cameraId}/record/1/day`
-  const recordStop = `${apiUrl}/${apiKey}/monitor/${groupKey}/${cameraId}/start`
   try {
     const { data } = await axios.get<IShinobiCamera[]>(
-      mode === 'record' ? recordStart : recordStop,
+      `${apiUrl}/${apiKey}/monitor/${groupKey}/${cameraId}/${mode}`,
       {
         headers: { 'Accept-Encoding': 'identity' },
       },

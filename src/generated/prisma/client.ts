@@ -45,6 +45,11 @@ export { Prisma }
  */
 export type Monitor = Prisma.MonitorModel
 /**
+ * Model Video
+ * 
+ */
+export type Video = Prisma.VideoModel
+/**
  * Model EventMonitor
  * 
  */

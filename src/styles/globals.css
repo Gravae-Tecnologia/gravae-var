@@ -41,6 +41,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--color-gray-800);
   color: var(--color-white);
+  scroll-behavior: smooth;
 }
 
 code {

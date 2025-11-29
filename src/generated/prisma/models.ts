@@ -9,6 +9,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Monitor.ts'
+export type * from './models/Video.ts'
 export type * from './models/EventMonitor.ts'
 export type * from './models/Event.ts'
 export type * from './commonInputTypes.ts'

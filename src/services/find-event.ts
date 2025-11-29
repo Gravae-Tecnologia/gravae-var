@@ -22,7 +22,10 @@ const findEventServer = createServerFn({
       where: { id: data.eventId },
       include: {
         monitors: {
-          include: { monitor: true },
+          include: {
+            videos: true,
+            monitor: true,
+          },
         },
       },
     })
@@ -52,7 +55,9 @@ const findEventServer = createServerFn({
 
     if (event.status === 'FINISHED') {
       // Monitors sem videoUrl gravado ainda
-      const monitorsWithoutVideo = event.monitors.filter((em) => !em.videoUrl)
+      const monitorsWithoutVideo = event.monitors.filter(
+        (monitor) => monitor.videos.length <= 0,
+      )
 
       if (monitorsWithoutVideo.length > 0) {
         // busca vídeos no Shinobi
@@ -74,21 +79,30 @@ const findEventServer = createServerFn({
 
         // atualiza eventMonitor.videoUrl
         await Promise.all(
-          monitorsWithoutVideo.map((em) => {
-            const video = eventVideos.find(
+          event.monitors.map((em) => {
+            const videos = eventVideos.filter(
               (v) => v.mid === em.monitor.monitorId,
             )
-            const videoUrl = video ? `${env.SHINOBI_URL}${video.href}` : null
 
-            console.log('[findEvent] linkando vídeo:', {
-              emId: em.id,
+            console.log('[stopEvent] Linkando vídeo ao eventMonitor:', {
+              eventMonitorId: em.id,
               monitorId: em.monitor.monitorId,
-              videoUrl,
+              videos,
             })
 
             return prisma.eventMonitor.update({
               where: { id: em.id },
-              data: { videoUrl },
+              data: {
+                videos: {
+                  createMany: {
+                    data: videos.map((video) => ({
+                      filename: video.filename,
+                      url: `${env.SHINOBI_URL}${video.href}`,
+                      startAt: video.time,
+                    })),
+                  },
+                },
+              },
             })
           }),
         )

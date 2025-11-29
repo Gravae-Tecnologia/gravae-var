@@ -52,7 +52,6 @@ export function VideoPlayer({ src }: VarPlayerProps) {
     const video = videoRef.current
     if (!video || !src) return
 
-    // reset básico quando o src muda
     setPlaybackRate(1)
     setIsPlaying(false)
     setDuration(0)
@@ -61,59 +60,91 @@ export function VideoPlayer({ src }: VarPlayerProps) {
     const isHlsSource = /\.m3u8(\?|$)/i.test(src)
     setIsHls(isHlsSource)
 
-    if (isHlsSource && Hls.isSupported()) {
-      const hls = new Hls({
-        manifestLoadingMaxRetry: 10,
-        manifestLoadingRetryDelay: 2000,
-        fragLoadingMaxRetry: 6,
-        fragLoadingRetryDelay: 2000,
-      })
-
-      hls.attachMedia(video)
-      hls.loadSource(src)
-
-      // autoplay quando manifest estiver pronto
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.muted = true // ajuda o autoplay
-        video
-          .play()
-          .then(() => setIsPlaying(true))
-          .catch((err) => {
-            console.warn('Autoplay HLS bloqueado:', err)
-          })
-      })
-
-      // tentar se recuperar de erros fatais
-      hls.on(Hls.Events.ERROR, (event, data) => {
-        if (!data.fatal) return
-
-        console.warn('[HLS fatal error]', data)
-
-        switch (data.type) {
-          case Hls.ErrorTypes.NETWORK_ERROR:
-            console.warn('Tentando recuperar NETWORK_ERROR...')
-            hls.startLoad() // recomeça o load
-            break
-          case Hls.ErrorTypes.MEDIA_ERROR:
-            console.warn('Tentando recuperar MEDIA_ERROR...')
-            hls.recoverMediaError()
-            break
-          default:
-            console.warn('Erro irreversível, destruindo HLS...')
-            hls.destroy()
-            break
-        }
-      })
-
-      return () => {
-        hls.destroy()
-      }
-    } else {
-      // Safari HLS nativo ou MP4 normal
+    if (!isHlsSource || !Hls.isSupported()) {
+      // MP4 / HLS nativo
       video.src = src
-      // se quiser autoplay pra MP4:
-      // video.muted = true
-      // video.play().catch(() => {})
+      return
+    }
+
+    let destroyed = false
+    let networkRetries = 0
+    let mediaRetries = 0
+
+    const maxNetworkRetries = 5
+    const maxMediaRetries = 3
+
+    const hls = new Hls({
+      manifestLoadingMaxRetry: 0,
+      fragLoadingMaxRetry: 0,
+    })
+
+    const scheduleReload = () => {
+      if (destroyed) return
+      if (networkRetries >= maxNetworkRetries) {
+        console.warn('[HLS] limite de tentativas de rede, destruindo.')
+        hls.destroy()
+        return
+      }
+      networkRetries++
+      const delay = 2000 * Math.min(networkRetries, 10)
+      console.warn(
+        `[HLS] NETWORK_ERROR – tentativa #${networkRetries} em ${delay}ms...`,
+      )
+      setTimeout(() => {
+        if (destroyed) return
+        hls.startLoad()
+      }, delay)
+    }
+
+    hls.attachMedia(video)
+    hls.loadSource(src)
+
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      networkRetries = 0
+      mediaRetries = 0
+      video.muted = true
+      video
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch((err) => console.warn('Autoplay bloqueado:', err))
+    })
+
+    hls.on(Hls.Events.ERROR, (event, data) => {
+      if (!data.fatal || destroyed) return
+
+      console.warn('[HLS fatal error]', data)
+
+      // erros de parse de manifest/level normalmente são definitivos
+      const isParseError =
+        data.details === 'manifestParsingError' ||
+        data.details === 'levelParsingError'
+
+      switch (data.type) {
+        case Hls.ErrorTypes.NETWORK_ERROR:
+          scheduleReload()
+          break
+
+        case Hls.ErrorTypes.MEDIA_ERROR:
+          console.warn('[HLS] MEDIA_ERROR, tentando recoverMediaError...')
+          if (mediaRetries >= maxMediaRetries || isParseError) {
+            console.warn('[HLS] limite de MEDIA_ERROR, destruindo.')
+            hls.destroy()
+          } else {
+            mediaRetries++
+            hls.recoverMediaError()
+          }
+          break
+
+        default:
+          console.warn('[HLS] erro irreversível, destruindo.')
+          hls.destroy()
+          break
+      }
+    })
+
+    return () => {
+      destroyed = true
+      hls.destroy()
     }
   }, [src])
 
@@ -235,7 +266,7 @@ export function VideoPlayer({ src }: VarPlayerProps) {
               className="flex-1 accent-green-400 cursor-pointer"
               disabled={!safeDuration}
             />
-            <span className="text-xs text-gray-300 min-w-[40px]">
+            <span className="text-xs text-gray-300 min-w-10">
               {formatTime(safeDuration)}
             </span>
           </div>
@@ -243,8 +274,10 @@ export function VideoPlayer({ src }: VarPlayerProps) {
           {/* Play / Pause + voltar / avançar */}
           <div className="flex flex-wrap justify-center gap-4">
             <div className="flex gap-2">
-              <ActionButton onClick={handlePlay}>▶️ Play</ActionButton>
-              <ActionButton onClick={handlePause}>⏸ Pause</ActionButton>
+              {/* <-- ÚNICO BOTÃO PLAY/PAUSE */}
+              <ActionButton onClick={togglePlayPause}>
+                {isPlaying ? '⏸ Pausar' : '▶️ Play'}
+              </ActionButton>
             </div>
 
             <div className="flex gap-2">

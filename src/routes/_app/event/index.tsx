@@ -116,9 +116,10 @@ function App() {
       await createEvent({
         data: values,
       })
-      router.invalidate()
-      router.navigate({
+      await router.invalidate()
+      await router.navigate({
         from: '/',
+        reloadDocument: true,
       })
     } finally {
       setIsCreatingEvent(false)
