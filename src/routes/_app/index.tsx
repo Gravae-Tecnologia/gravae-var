@@ -5,7 +5,7 @@ import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_app/')({
   component: App,
-  loader: findManyEvent,
+  loader: async () => await findManyEvent(),
 })
 
 function App() {

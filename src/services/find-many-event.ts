@@ -3,10 +3,11 @@ import { createServerFn } from '@tanstack/react-start'
 import { getUsers, getMonitors as getShinobiMonitors } from './shinobi.service'
 import { env } from '@/constants/env'
 
-const getEvents = createServerFn({
+export const findManyEvent = createServerFn({
   method: 'GET',
 }).handler(async () => {
-  return await prisma.event.findMany({
+  // 1) Busca eventos no banco
+  const events = await prisma.event.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
       monitors: {
@@ -16,35 +17,41 @@ const getEvents = createServerFn({
       },
     },
   })
-})
 
-export async function findManyEvent() {
-  {
-    const events = await getEvents()
+  // 2) Busca usuário do Shinobi
+  const users = await getUsers({
+    apiUrl: env.SHINOBI_URL,
+    apiKey: env.SHINOBI_API_KEY,
+  })
 
-    const user = await getUsers({
-      apiUrl: env.SHINOBI_URL,
-      apiKey: env.SHINOBI_API_KEY,
-    })
+  if (!Array.isArray(users) || !users[0]?.auth) {
+    console.error('[findManyEvent] getUsers não retornou auth válido:', users)
+    throw new Error(
+      'Não foi possível autenticar no Shinobi. Verifique SHINOBI_URL e SHINOBI_API_KEY.',
+    )
+  }
 
-    const shinobiMonitors = await getShinobiMonitors({
-      apiUrl: env.SHINOBI_URL,
-      apiKey: user[0].auth,
-      groupKey: env.SHINOBI_GROUP_KEY,
-    })
+  const shinobiApiKey = users[0].auth
 
-    shinobiMonitors?.monitors.forEach((monitor) => {
-      console.log(monitor)
+  // 3) Busca monitores no Shinobi
+  const shinobiMonitors = await getShinobiMonitors({
+    apiUrl: env.SHINOBI_URL,
+    apiKey: shinobiApiKey,
+    groupKey: env.SHINOBI_GROUP_KEY,
+  })
 
-      events.forEach((event) => {
-        event.monitors.forEach(({ monitor: m }) => {
-          if (m.monitorId === monitor.mid) {
-            m.url = `${env.SHINOBI_URL}${monitor.streams[0]}`
-          }
-        })
+  // 4) Enriquecer eventos com URL HLS do Shinobi
+  shinobiMonitors?.monitors.forEach((monitor) => {
+    console.log('[findManyEvent] shinobi monitor:', monitor)
+
+    events.forEach((event) => {
+      event.monitors.forEach(({ monitor: m }) => {
+        if (m.monitorId === monitor.mid && monitor.streams?.[0]) {
+          m.url = `${env.SHINOBI_URL}${monitor.streams[0]}`
+        }
       })
     })
+  })
 
-    return events
-  }
-}
+  return events
+})

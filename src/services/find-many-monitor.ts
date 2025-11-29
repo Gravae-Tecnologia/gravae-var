@@ -3,39 +3,47 @@ import { createServerFn } from '@tanstack/react-start'
 import { getUsers, getMonitors as getShinobiMonitors } from './shinobi.service'
 import { env } from '@/constants/env'
 
-const getMonitors = createServerFn({
+// NÃO exporta mais um serverFn intermediário
+export const findManyMonitor = createServerFn({
   method: 'GET',
 }).handler(async () => {
-  return await prisma.monitor.findMany({
+  // 1) Busca monitores no banco
+  const monitors = await prisma.monitor.findMany({
     orderBy: { createdAt: 'desc' },
   })
-})
 
-export async function findManyMonitor() {
-  {
-    const monitors = await getMonitors()
+  // 2) Busca usuário do Shinobi
+  const users = await getUsers({
+    apiUrl: env.SHINOBI_URL,
+    apiKey: env.SHINOBI_API_KEY,
+  })
 
-    const user = await getUsers({
-      apiUrl: env.SHINOBI_URL,
-      apiKey: env.SHINOBI_API_KEY,
-    })
-
-    const shinobiMonitors = await getShinobiMonitors({
-      apiUrl: env.SHINOBI_URL,
-      apiKey: user[0].auth,
-      groupKey: env.SHINOBI_GROUP_KEY,
-    })
-
-    shinobiMonitors?.monitors.forEach((monitor) => {
-      console.log(monitor)
-
-      monitors.forEach((m) => {
-        if (m.monitorId === monitor.mid) {
-          m.url = `${env.SHINOBI_URL}${monitor.streams[0]}`
-        }
-      })
-    })
-
-    return monitors
+  if (!Array.isArray(users) || !users[0]?.auth) {
+    console.error('[findManyMonitor] getUsers não retornou auth válido:', users)
+    throw new Error(
+      'Não foi possível autenticar no Shinobi. Verifique SHINOBI_URL e SHINOBI_API_KEY.',
+    )
   }
-}
+
+  const shinobiApiKey = users[0].auth
+
+  // 3) Busca monitores no Shinobi
+  const shinobiMonitors = await getShinobiMonitors({
+    apiUrl: env.SHINOBI_URL,
+    apiKey: shinobiApiKey,
+    groupKey: env.SHINOBI_GROUP_KEY,
+  })
+
+  // 4) Enriquecer monitores do banco com a URL HLS do Shinobi
+  shinobiMonitors?.monitors.forEach((monitor) => {
+    console.log('[findManyMonitor] shinobi monitor:', monitor)
+
+    monitors.forEach((m) => {
+      if (m.monitorId === monitor.mid && monitor.streams?.[0]) {
+        m.url = `${env.SHINOBI_URL}${monitor.streams[0]}`
+      }
+    })
+  })
+
+  return monitors
+})

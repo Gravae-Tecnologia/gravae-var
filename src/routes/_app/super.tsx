@@ -36,7 +36,7 @@ const deleteMonitor = createServerFn({
 
 export const Route = createFileRoute('/_app/super')({
   component: App,
-  loader: findManyMonitor,
+  loader: async () => await findManyMonitor(),
 })
 
 function App() {

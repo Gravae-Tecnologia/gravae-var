@@ -6,9 +6,6 @@ import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 
 const config = defineConfig({
-  preview: {
-    allowedHosts: ['arenachallengevar.gravae.io'],
-  },
   plugins: [
     devtools(),
     viteTsConfigPaths({
@@ -22,6 +19,14 @@ const config = defineConfig({
     }),
     viteReact(),
   ],
+  server: {
+    host: true,
+    allowedHosts: true,
+  },
+  preview: {
+    host: true,
+    allowedHosts: true,
+  },
 })
 
 export default config

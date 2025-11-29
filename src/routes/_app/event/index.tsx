@@ -17,7 +17,7 @@ import z from 'zod'
 
 export const Route = createFileRoute('/_app/event/')({
   component: App,
-  loader: findManyMonitor,
+  loader: async () => await findManyMonitor(),
 })
 
 const formSchema = z.object({
