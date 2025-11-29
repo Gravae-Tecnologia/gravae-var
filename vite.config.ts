@@ -6,6 +6,9 @@ import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 
 const config = defineConfig({
+  preview: {
+    allowedHosts: ['https://arenachallengevar.gravae.io'],
+  },
   plugins: [
     devtools(),
     viteTsConfigPaths({
